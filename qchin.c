@@ -247,7 +247,7 @@ void showOrderWin(WINDOW* orderWin, Stack* orders) {
     wmove(orderWin, 1, 1);
 
     while(next != NULL) {
-        wprintw(orderWin, "%s || ", next->value->value);
+        wprintw(orderWin, "%s | ", next->value->value);
         next = next->next;
         i++;
         if(i >= 5) {
@@ -285,7 +285,7 @@ void updateInputWin(WINDOW* inputwin, char* input, bool error) {
 int calcTimeDiff(int clientCount) {
     int timediff = 1 + (rand() % 4);
     if (clientCount > 3) {
-        return timediff + ((clientCount / 2) - clientCount / 1.3);
+        return timediff + ((clientCount / 2) - clientCount / 3.0);
     }
     return timediff;
 }
@@ -322,17 +322,17 @@ void gameLoop(Queue *clients) {
             qEnqueue(clients, cli);
             showClientWin(cliwin, clients);
             baset = now;
-            timediff = 1 + (rand() % 4);
+            timediff = calcTimeDiff(clients->count);
         }
         if(finishedClient) {
             if(curClient != NULL) {
                 free(curClient);
             }
             curClient = qDequeue(clients);
-            showClientWin(cliwin, clients);
             if(curClient == NULL) {
                 break;
             }
+            showClientWin(cliwin, clients);
             curOrders = curClient->orders;
             finishedClient = false;
         }
@@ -341,12 +341,12 @@ void gameLoop(Queue *clients) {
                 free(curOrder);
             }
             curOrder = dspop(curOrders);
-            showOrderWin(ordersWin, curOrders);
-            updateCurOrderWin(curorderwin, curOrder);
             if(curOrder == NULL) {
                 finishedClient = true;
                 continue;
             }
+            showOrderWin(ordersWin, curOrders);
+            updateCurOrderWin(curorderwin, curOrder);
             finishedOrder = false;
         }
         updateInputWin(inputwin, input, hasInputError);
